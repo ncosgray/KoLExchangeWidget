@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 17
+    compileSdkVersion 31
     buildToolsVersion "25.0.2"
 
     defaultConfig {
         applicationId "com.nathanatos.kolexchangewidget"
         minSdkVersion 10
-        targetSdkVersion 19
+        targetSdkVersion 31
     }
 
     buildTypes {
