@@ -1,17 +1,17 @@
 package com.nathanatos.kolexchangewidget;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-
 import android.app.PendingIntent;
-import android.appwidget.AppWidgetProvider;
 import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.RemoteViews;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 public class KoLExchangeWidget extends AppWidgetProvider {
 
@@ -29,7 +29,7 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.main);
 		Intent intent = new Intent(context, KoLExchangeWidget.class);
 		intent.setAction(KOLEXCHANGE_CLICK);
-		views.setOnClickPendingIntent(R.id.widget_rootview, PendingIntent.getBroadcast(context, 0, intent, 0));
+		views.setOnClickPendingIntent(R.id.widget_rootview, PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE));
 		appWidgetManager.updateAppWidget(thisWidget, views);
 		
 		// do the data update in another thread
