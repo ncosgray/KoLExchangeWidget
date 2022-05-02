@@ -14,6 +14,8 @@ import android.widget.RemoteViews;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import java.util.concurrent.TimeUnit;
+
 public class KoLExchangeWidget extends AppWidgetProvider {
 
 	private static final String KOLEXCHANGE_WS_URL = "https://www.nathanatos.com/kol/ws_getrate.php";
@@ -21,7 +23,7 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 	private static final String KOLEXCHANGE_LABEL = "$1 US = ";
 	private static final String KOLEXCHANGE_CLICK_URL = "https://www.nathanatos.com/kol/";
 	private static final String KOLEXCHANGE_CLICK = "KoLWidgetClicked";
-	
+
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 		
@@ -71,18 +73,31 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 			// get context
 			context = params[0];
 			
-			// load data from web service
+			// load data from web service, with up to 3 retries
 			String updateText = null;
 	    	XMLParser parser = new XMLParser();
-			String xml = parser.getXmlFromUrl(KOLEXCHANGE_WS_URL);
-			if(xml != null) {
-				Document doc = parser.getDomElement(xml);
-				if(doc != null) {
-					NodeList nl = doc.getElementsByTagName(KOLEXCHANGE_WS_NODE);
-					if (nl.getLength() > 0) {
-						updateText = KOLEXCHANGE_LABEL + parser.getElementValue(nl.item(0));
+			int retries = 3;
+			while (updateText == null && retries > 0){
+				try {
+					String xml = parser.getXmlFromUrl(KOLEXCHANGE_WS_URL);
+					if (xml != null) {
+						Document doc = parser.getDomElement(xml);
+						if (doc != null) {
+							NodeList nl = doc.getElementsByTagName(KOLEXCHANGE_WS_NODE);
+							if (nl.getLength() > 0) {
+								updateText = KOLEXCHANGE_LABEL + parser.getElementValue(nl.item(0));
+							}
+						}
 					}
+					if (updateText == null) {
+						// pause before retrying
+						TimeUnit.SECONDS.sleep(1);
+					}
+
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
+				retries--;
 			}
 			return updateText;
 			
