@@ -4,11 +4,23 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:background="@drawable/appwidget_bg_holo"
     android:gravity="left"
     android:orientation="horizontal" >
 
-    <ImageView
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:layout_gravity="center">
+
+	<ImageView
+		android:id="@+id/bgcolor"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:scaleType="fitXY"
+		android:src="@drawable/rounded" />
+
+	<ImageView
         android:id="@+id/widget_imageview"
         android:layout_width="54dp"
         android:layout_height="62dp"
@@ -16,16 +28,19 @@
         android:gravity="center_vertical"
         android:padding="10dip"
         android:src="@drawable/widget_image" />
-    
+
 	<TextView
 	    android:id="@+id/widget_textview"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_gravity="right|center_vertical"
 	    android:gravity="center_horizontal"
+		android:paddingLeft="54dp"
 	    android:paddingRight="10dip"
 	    android:text="@string/widget_text"
 	    android:textSize="10sp"
 	    android:textColor="@android:color/black" />
+
+	</FrameLayout>
 
 </LinearLayout>
