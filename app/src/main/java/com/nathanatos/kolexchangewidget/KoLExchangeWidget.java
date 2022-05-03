@@ -21,7 +21,7 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 	private static final String KOLEXCHANGE_WS_URL = "https://www.nathanatos.com/kol/ws_getrate.php";
 	private static final String KOLEXCHANGE_WS_NODE = "rate";
 	private static final String KOLEXCHANGE_LABEL = "$1 US = ";
-	private static final String KOLEXCHANGE_CLICK_URL = "https://www.nathanatos.com/kol/";
+	private static final String KOLEXCHANGE_CLICK_URL = "https://www.nathanatos.com/kol-exchange-rate/";
 	private static final String KOLEXCHANGE_CLICK = "KoLWidgetClicked";
 
 	@Override
