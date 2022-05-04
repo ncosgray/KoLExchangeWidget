@@ -7,6 +7,7 @@
     android:minResizeHeight="40dp"
     android:maxResizeWidth="660dp"
     android:updatePeriodMillis="3600000"
-    android:initialLayout="@layout/main" 
+    android:initialLayout="@layout/main"
+    android:previewImage="@drawable/widget_preview"
     android:widgetCategory="home_screen" >
 </appwidget-provider>
