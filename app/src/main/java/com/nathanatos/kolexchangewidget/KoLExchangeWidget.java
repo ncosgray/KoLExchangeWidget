@@ -27,19 +27,7 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 		
-		// set up the click intent
-		ComponentName thisWidget = new ComponentName(context, KoLExchangeWidget.class);
-		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.main);
-		Intent intent = new Intent(context, KoLExchangeWidget.class);
-		intent.setAction(KOLEXCHANGE_CLICK);
-		views.setOnClickPendingIntent(R.id.widget_rootview,
-				PendingIntent.getBroadcast(context,
-						0,
-						intent,
-						Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_CANCEL_CURRENT));
-		appWidgetManager.updateAppWidget(thisWidget, views);
-		
-		// do the data update in another thread
+		// do the widget update in another thread
 		new WidgetUpdateTask().execute(context);
 		
 	}
@@ -57,13 +45,13 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 	        } catch (RuntimeException e) {
 	            e.printStackTrace();
 	        }
-	        
-			// do an extra data update in another thread
-			new WidgetUpdateTask().execute(context);
-			
 		}
+
+        // do an extra widget update in another thread
+        new WidgetUpdateTask().execute(context);
+
 	}
-	
+
 	private class WidgetUpdateTask extends AsyncTask<Context, Void, String> {
 		
 		private Context context;
@@ -104,16 +92,28 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 	    }
 
 	    protected void onPostExecute(String resultText) {
-	    	
-			// update the widget text only if a value was received
-	    	if(resultText != null) {
-	    		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-	    		RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.main);
-	    		ComponentName thisWidget = new ComponentName(context, KoLExchangeWidget.class);
-	    		updateViews.setTextViewText(R.id.widget_textview, resultText);
-	    		appWidgetManager.updateAppWidget(thisWidget, updateViews);
-	    	}
-	    
+
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            ComponentName thisWidget = new ComponentName(context, KoLExchangeWidget.class);
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.main);
+
+            // update the widget text only if a value was received
+            if(resultText != null) {
+                views.setTextViewText(R.id.widget_textview, resultText);
+            }
+
+            // set up the click intent
+            Intent intent = new Intent(context, KoLExchangeWidget.class);
+            intent.setAction(KOLEXCHANGE_CLICK);
+            views.setOnClickPendingIntent(R.id.widget_rootview,
+                    PendingIntent.getBroadcast(context,
+                            0,
+                            intent,
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT));
+
+            // apply updates
+            appWidgetManager.updateAppWidget(thisWidget, views);
+
 	    }
 
 	}
