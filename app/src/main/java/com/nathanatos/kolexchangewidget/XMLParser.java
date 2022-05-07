@@ -1,3 +1,18 @@
+/*
+ *******************************************************************************
+ Package:  com.nathanatos.kolexchangewidget
+ Class:    XMLParser.java
+ Author:   Nathan Cosgray | https://www.nathanatos.com
+ -------------------------------------------------------------------------------
+ Copyright (c) 2013-2022 Nathan Cosgray. All rights reserved.
+ This source code is licensed under the BSD-style license found in LICENSE.txt.
+ *******************************************************************************
+*/
+
+// XMLParser class
+// - Load XML from a web address
+// - Parse XML to get value from requested node
+
 package com.nathanatos.kolexchangewidget;
 
 import android.util.Log;

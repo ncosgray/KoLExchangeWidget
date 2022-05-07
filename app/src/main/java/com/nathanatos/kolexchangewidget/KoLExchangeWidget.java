@@ -1,3 +1,19 @@
+/*
+ *******************************************************************************
+ Package:  com.nathanatos.kolexchangewidget
+ Class:    KoLExchangeWidget.java
+ Author:   Nathan Cosgray | https://www.nathanatos.com
+ -------------------------------------------------------------------------------
+ Copyright (c) 2013-2022 Nathan Cosgray. All rights reserved.
+ This source code is licensed under the BSD-style license found in LICENSE.txt.
+ *******************************************************************************
+*/
+
+// KoLExchangeWidget class
+// - Widget configuration
+// - Do widget data updates asynchronously
+// - Handle widget clicks
+
 package com.nathanatos.kolexchangewidget;
 
 import android.app.PendingIntent;
