@@ -4,7 +4,7 @@
  Class:    XMLParser.java
  Author:   Nathan Cosgray | https://www.nathanatos.com
  -------------------------------------------------------------------------------
- Copyright (c) 2013-2022 Nathan Cosgray. All rights reserved.
+ Copyright (c) 2013-2024 Nathan Cosgray. All rights reserved.
  This source code is licensed under the BSD-style license found in LICENSE.txt.
  *******************************************************************************
 */
@@ -18,9 +18,7 @@ package com.nathanatos.kolexchangewidget;
 import android.util.Log;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -28,7 +26,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -43,15 +40,16 @@ public class XMLParser {
     // and http://androidcookbook.com/Recipe.seam?recipeId=79
 
     // Load XML from web address into a string
-    public String getXmlFromUrl(String xmlurl) {
+    public String getXmlFromUrl(String xmlUrl, int timeoutSeconds) {
+
         String xml = null;
 
         try {
             // Use URLConnection to fetch data
-            URL url = new URL(xmlurl);
+            URL url = new URL(xmlUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(timeoutSeconds);
+            conn.setReadTimeout(timeoutSeconds);
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
             conn.connect();
@@ -67,48 +65,39 @@ public class XMLParser {
             conn.disconnect();
             xml = sb.toString();
 
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("getXmlFromUrl", e.getMessage());
         }
         return xml;
+
     }
 
     // Get DOM from XML string
     public Document getDomElement(String xml) {
-        Document doc = null;
+
+        Document doc;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
         try {
 
             DocumentBuilder db = dbf.newDocumentBuilder();
-
             InputSource is = new InputSource();
             is.setCharacterStream(new StringReader(xml));
             doc = db.parse(is);
 
-        } catch (ParserConfigurationException e) {
-            Log.e("Error: ", e.getMessage());
-            return null;
-        } catch (SAXException e) {
-            Log.e("Error: ", e.getMessage());
-            return null;
-        } catch (IOException e) {
-            Log.e("Error: ", e.getMessage());
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            Log.e("getDomElement", e.getMessage());
             return null;
         }
         return doc;
-    }
 
-    // Given an element tag name, return its value
-    public String getValue(Element item, String str) {
-        NodeList n = item.getElementsByTagName(str);
-        return this.getElementValue(n.item(0));
     }
 
     // Get value from a node
     public final String getElementValue(Node elem) {
+
         Node child;
+
         if (elem != null) {
             if (elem.hasChildNodes()) {
                 for (child = elem.getFirstChild(); child != null; child = child.getNextSibling()) {
@@ -119,6 +108,7 @@ public class XMLParser {
             }
         }
         return "";
+
     }
 
 }

@@ -4,7 +4,7 @@
  Class:    KoLExchangeWidget.java
  Author:   Nathan Cosgray | https://www.nathanatos.com
  -------------------------------------------------------------------------------
- Copyright (c) 2013-2022 Nathan Cosgray. All rights reserved.
+ Copyright (c) 2013-2024 Nathan Cosgray. All rights reserved.
  This source code is licensed under the BSD-style license found in LICENSE.txt.
  *******************************************************************************
 */
@@ -19,126 +19,156 @@ package com.nathanatos.kolexchangewidget;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class KoLExchangeWidget extends AppWidgetProvider {
 
     // Widget configuration constants
     private static final String KOLEXCHANGE_WS_URL = "https://www.nathanatos.com/kol/ws_getrate.php";
+    private static final int KOLEXCHANGE_WS_TIMEOUT = 2500;
     private static final String KOLEXCHANGE_WS_NODE = "rate";
     private static final String KOLEXCHANGE_LABEL = "$1 US = ";
     private static final String KOLEXCHANGE_CLICK_URL = "https://www.nathanatos.com/kol-exchange-rate/";
     private static final String KOLEXCHANGE_CLICK = "KoLWidgetClicked";
+    private static final int KOLEXCHANGE_CLICK_NO = 0;
+    private static final int KOLEXCHANGE_CLICK_YES = 1;
 
     // Update widget data
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
-        // Do the widget update in another thread
-        new WidgetUpdateTask().execute(context);
+        // Update all widgets
+        Log.i("onUpdate", "Starting all widgets update");
+        for (int appWidgetId : appWidgetIds) {
+            doWidgetUpdate(context, appWidgetManager, appWidgetId);
+        }
 
     }
 
     // Handle widget click
     @Override
     public void onReceive(Context context, Intent intent) {
+
         super.onReceive(context, intent);
 
-        // Process a user click on the widget
-        if (intent.getAction() != null && intent.getAction().equals(KOLEXCHANGE_CLICK)) {
-            try {
-                // Open the KoL Exchange rate website in browser
-                Intent webIntent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(KOLEXCHANGE_CLICK_URL));
-                webIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(webIntent);
-            } catch (RuntimeException e) {
-                e.printStackTrace();
+        if (intent != null) {
+
+            // Get the intent details
+            int didClick = KOLEXCHANGE_CLICK_NO;
+            int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                didClick = extras.getInt(KOLEXCHANGE_CLICK,
+                        KOLEXCHANGE_CLICK_NO);
+                appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                        AppWidgetManager.INVALID_APPWIDGET_ID);
+            }
+
+            // Process a user click on the widget
+            if (didClick == KOLEXCHANGE_CLICK_YES) {
+                try {
+                    // Open the KoL Exchange rate website in browser
+                    Intent webIntent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(KOLEXCHANGE_CLICK_URL));
+                    webIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(webIntent);
+                } catch (RuntimeException e) {
+                    Log.e("onReceive", e.getMessage());
+                }
+            }
+
+            // Update this widget
+            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                Log.i("onReceive", "Starting single widget update");
+                doWidgetUpdate(context, AppWidgetManager.getInstance(context), appWidgetId);
             }
         }
-
-        // Do an extra widget update in another thread
-        new WidgetUpdateTask().execute(context);
 
     }
 
     // Asynchronously update the widget data and intent
-    private class WidgetUpdateTask extends AsyncTask<Context, Void, String> {
+    private void doWidgetUpdate(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
 
-        private Context context;
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
 
-        // Load data from web service
-        protected String doInBackground(Context... params) {
+        executor.execute(new Runnable() {
 
-            // Get context
-            context = params[0];
-
-            // Load exchange rate from web service, with up to 3 retries
             String updateText = null;
-            XMLParser parser = new XMLParser();
-            int retries = 3;
-            while (updateText == null && retries > 0) {
-                try {
-                    String xml = parser.getXmlFromUrl(KOLEXCHANGE_WS_URL);
-                    if (xml != null) {
-                        Document doc = parser.getDomElement(xml);
-                        if (doc != null) {
-                            NodeList nl = doc.getElementsByTagName(KOLEXCHANGE_WS_NODE);
-                            if (nl.getLength() > 0) {
-                                // New value for widget text
-                                updateText = KOLEXCHANGE_LABEL + parser.getElementValue(nl.item(0));
+
+            // Load data from web service
+            @Override
+            public void run() {
+
+                // Load exchange rate from web service, with up to 3 retries
+                XMLParser parser = new XMLParser();
+                int retries = 3;
+                while (updateText == null && retries > 0) {
+                    try {
+
+                        String xml = parser.getXmlFromUrl(KOLEXCHANGE_WS_URL, KOLEXCHANGE_WS_TIMEOUT);
+                        if (xml != null) {
+                            Document doc = parser.getDomElement(xml);
+                            if (doc != null) {
+                                NodeList nl = doc.getElementsByTagName(KOLEXCHANGE_WS_NODE);
+                                if (nl.getLength() > 0) {
+                                    // New value for widget text
+                                    updateText = KOLEXCHANGE_LABEL + parser.getElementValue(nl.item(0));
+                                }
                             }
                         }
-                    }
-                    if (updateText == null) {
-                        // Pause before retrying
-                        TimeUnit.SECONDS.sleep(1);
+                        if (updateText == null) {
+                            // Pause before retrying
+                            TimeUnit.MILLISECONDS.sleep(KOLEXCHANGE_WS_TIMEOUT);
+                        }
+
+                    } catch (Exception e) {
+                        Log.e("doWidgetUpdate", e.getMessage());
                     }
 
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    retries--;
                 }
-                retries--;
+                Log.i("doWidgetUpdate", "Got " + updateText);
+
+                // After loading data, apply updates to the widget
+                handler.post(() -> {
+
+                    // Update the widget text only if a value was received
+                    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.main);
+                    if (updateText != null) {
+                        views.setTextViewText(R.id.widget_textview, updateText);
+                    }
+
+                    // Set up the click intent
+                    Intent intent = new Intent(context, KoLExchangeWidget.class);
+                    intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                    intent.putExtra(KOLEXCHANGE_CLICK, KOLEXCHANGE_CLICK_YES);
+                    intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, new int[] {appWidgetId});
+                    views.setOnClickPendingIntent(R.id.widget_rootview,
+                            PendingIntent.getBroadcast(context,
+                                    0,
+                                    intent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
+
+                    // Apply updates
+                    appWidgetManager.updateAppWidget(appWidgetId, views);
+
+                });
             }
-            return updateText;
-
-        }
-
-        // After loading data, apply updates to the widget
-        protected void onPostExecute(String resultText) {
-
-            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            ComponentName thisWidget = new ComponentName(context, KoLExchangeWidget.class);
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.main);
-
-            // Update the widget text only if a value was received
-            if (resultText != null) {
-                views.setTextViewText(R.id.widget_textview, resultText);
-            }
-
-            // Set up the click intent
-            Intent intent = new Intent(context, KoLExchangeWidget.class);
-            intent.setAction(KOLEXCHANGE_CLICK);
-            views.setOnClickPendingIntent(R.id.widget_rootview,
-                    PendingIntent.getBroadcast(context,
-                            0,
-                            intent,
-                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT));
-
-            // Apply updates
-            appWidgetManager.updateAppWidget(thisWidget, views);
-
-        }
+        });
 
     }
 }
