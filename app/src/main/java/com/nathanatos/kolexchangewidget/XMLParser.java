@@ -40,7 +40,7 @@ public class XMLParser {
     // and http://androidcookbook.com/Recipe.seam?recipeId=79
 
     // Load XML from web address into a string
-    public String getXmlFromUrl(String xmlUrl, int timeoutSeconds) {
+    public String getXmlFromUrl(String xmlUrl, int timeout) {
 
         String xml = null;
 
@@ -48,8 +48,8 @@ public class XMLParser {
             // Use URLConnection to fetch data
             URL url = new URL(xmlUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(timeoutSeconds);
-            conn.setReadTimeout(timeoutSeconds);
+            conn.setConnectTimeout(timeout);
+            conn.setReadTimeout(timeout);
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
             conn.connect();
