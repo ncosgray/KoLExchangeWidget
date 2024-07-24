@@ -42,6 +42,7 @@ public class XMLParser {
     // Load XML from web address into a string
     public String getXmlFromUrl(String xmlUrl, int timeout) {
 
+        final String logTag = "getXmlFromUrl";
         String xml = null;
 
         try {
@@ -66,7 +67,7 @@ public class XMLParser {
             xml = sb.toString();
 
         } catch (IOException e) {
-            Log.e("getXmlFromUrl", e.getMessage());
+            Log.e(logTag, e.getMessage());
         }
         return xml;
 
@@ -75,6 +76,7 @@ public class XMLParser {
     // Get DOM from XML string
     public Document getDomElement(String xml) {
 
+        final String logTag = "getDomElement";
         Document doc;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
@@ -86,7 +88,7 @@ public class XMLParser {
             doc = db.parse(is);
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            Log.e("getDomElement", e.getMessage());
+            Log.e(logTag, e.getMessage());
             return null;
         }
         return doc;

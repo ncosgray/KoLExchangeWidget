@@ -60,22 +60,24 @@ public class KoLExchangeWidget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
+        final String logTag = "onUpdate";
+
         // Wait for active network, with retries
         int retries = KOLEXCHANGE_RETRIES;
         try {
             while (!isNetworkConnected(context) && retries > 0) {
-                Log.w("onUpdate", "Waiting for network connection");
+                Log.w(logTag, "Waiting for network connection");
                 retries--;
 
                 // Pause before retrying
                 TimeUnit.MILLISECONDS.sleep(KOLEXCHANGE_TIMEOUT);
             }
         } catch (Exception e) {
-            Log.e("onUpdate", e.getMessage());
+            Log.e(logTag, e.getMessage());
         }
 
         // Update all widgets
-        Log.i("onUpdate", "Starting all widgets update");
+        Log.i(logTag, "Starting all widgets update");
         for (int appWidgetId : appWidgetIds) {
             doWidgetUpdate(context, appWidgetManager, appWidgetId);
         }
@@ -91,6 +93,8 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 
         super.onReceive(context, intent);
 
+        final String logTag = "onReceive";
+
         // Process a user click on the widget
         if (intent != null && intent.getAction().equals(KOLEXCHANGE_CLICK_ACTION)) {
 
@@ -101,7 +105,7 @@ public class KoLExchangeWidget extends AppWidgetProvider {
                 webIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(webIntent);
             } catch (RuntimeException e) {
-                Log.e("onReceive", e.getMessage());
+                Log.e(logTag, e.getMessage());
             }
 
             // Get the intent details
@@ -114,7 +118,7 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 
             // Update this widget
             if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                Log.i("onReceive", "Starting single widget update");
+                Log.i(logTag, "Starting single widget update");
                 doWidgetUpdate(context, AppWidgetManager.getInstance(context), appWidgetId);
             }
         }
@@ -125,7 +129,9 @@ public class KoLExchangeWidget extends AppWidgetProvider {
     @Override
     public void onDisabled(Context context) {
 
-        Log.i("onDisabled", "Canceling widget updates");
+        final String logTag = "onDisabled";
+
+        Log.i(logTag, "Canceling widget updates");
         cancelUpdate(context);
 
     }
@@ -200,6 +206,7 @@ public class KoLExchangeWidget extends AppWidgetProvider {
     // Asynchronously update the widget data and set click intent
     private void doWidgetUpdate(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
 
+        final String logTag = "doWidgetUpdate";
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
@@ -236,12 +243,12 @@ public class KoLExchangeWidget extends AppWidgetProvider {
                         }
 
                     } catch (Exception e) {
-                        Log.e("doWidgetUpdate", e.getMessage());
+                        Log.e(logTag, e.getMessage());
                     }
 
                     retries--;
                 }
-                Log.i("doWidgetUpdate", "Got " + updateText);
+                Log.i(logTag, "Got " + updateText);
 
                 // After loading data, apply updates to the widget
                 handler.post(() -> {
