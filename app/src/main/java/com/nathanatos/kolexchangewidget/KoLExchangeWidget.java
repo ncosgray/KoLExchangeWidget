@@ -23,6 +23,9 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,12 +53,26 @@ public class KoLExchangeWidget extends AppWidgetProvider {
     private static final int KOLEXCHANGE_CLICK_REQUEST = 0;
     private static final Duration KOLEXCHANGE_UPDATE_DURATION = Duration.ofMinutes(60);
     private static final int KOLEXCHANGE_UPDATE_REQUEST = 1;
-    private static final int KOLEXCHANGE_TIMEOUT = 1000; // milliseconds
+    private static final int KOLEXCHANGE_TIMEOUT = 2500; // milliseconds
     private static final int KOLEXCHANGE_RETRIES = 3;
 
     // Update widget data
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+
+        // Wait for active network, with retries
+        int retries = KOLEXCHANGE_RETRIES;
+        try {
+            while (!isNetworkConnected(context) && retries > 0) {
+                Log.w("onUpdate", "Waiting for network connection");
+                retries--;
+
+                // Pause before retrying
+                TimeUnit.MILLISECONDS.sleep(KOLEXCHANGE_TIMEOUT);
+            }
+        } catch (Exception e) {
+            Log.e("onUpdate", e.getMessage());
+        }
 
         // Update all widgets
         Log.i("onUpdate", "Starting all widgets update");
@@ -247,5 +264,31 @@ public class KoLExchangeWidget extends AppWidgetProvider {
         });
 
     }
-}
 
+    // Return true if the device has an active network connection
+    private boolean isNetworkConnected(Context context) {
+
+        // Get network info
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager == null) {
+            return false;
+        }
+        Network network = connectivityManager.getActiveNetwork();
+        if (network == null) {
+            return false;
+        }
+        NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
+        if (capabilities == null) {
+            return false;
+        }
+
+        // Verify Wi-Fi or Cellular with internet access available
+        return (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
+                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+
+    }
+
+}
