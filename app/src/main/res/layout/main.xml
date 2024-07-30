@@ -39,7 +39,7 @@
             android:paddingRight="10dip"
             android:text="@string/widget_text"
             android:textSize="10sp"
-            android:textColor="@android:color/black" />
+            android:textColor="@color/text_color" />
 
     </FrameLayout>
 
