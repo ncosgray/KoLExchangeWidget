@@ -11,7 +11,6 @@
 
 // KoLExchangeWidget class
 // - Widget configuration
-// - Do widget data updates asynchronously
 // - Handle widget clicks
 
 package com.nathanatos.kolexchangewidget;
@@ -23,38 +22,18 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-
-import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class KoLExchangeWidget extends AppWidgetProvider {
-
-    // Widget configuration constants
-    private static final String KOLEXCHANGE_WS_URL = "https://www.nathanatos.com/kol/ws_getrate.php";
-    private static final String KOLEXCHANGE_WS_NODE = "rate";
-    private static final String KOLEXCHANGE_LABEL = "$1 US = ";
-    private static final String KOLEXCHANGE_CLICK_URL = "https://www.nathanatos.com/kol-exchange-rate/";
-    private static final String KOLEXCHANGE_CLICK_ACTION = "KoLWidgetClicked";
-    private static final int KOLEXCHANGE_CLICK_REQUEST = 0;
-    private static final Duration KOLEXCHANGE_UPDATE_DURATION = Duration.ofMinutes(60);
-    private static final int KOLEXCHANGE_UPDATE_REQUEST = 1;
-    private static final int KOLEXCHANGE_TIMEOUT = 2500; // milliseconds
-    private static final int KOLEXCHANGE_RETRIES = 3;
 
     // Update widget data
     @Override
@@ -63,14 +42,14 @@ public class KoLExchangeWidget extends AppWidgetProvider {
         final String logTag = "onUpdate";
 
         // Wait for active network, with retries
-        int retries = KOLEXCHANGE_RETRIES;
+        int retries = Constants.KOLEXCHANGE_RETRIES;
         try {
-            while (!isNetworkConnected(context) && retries > 0) {
+            while (!KoLExchangeData.isNetworkConnected(context) && retries > 0) {
                 Log.w(logTag, "Waiting for network connection");
                 retries--;
 
                 // Pause before retrying
-                TimeUnit.MILLISECONDS.sleep(KOLEXCHANGE_TIMEOUT);
+                TimeUnit.MILLISECONDS.sleep(Constants.KOLEXCHANGE_TIMEOUT);
             }
         } catch (Exception e) {
             Log.e(logTag, e.getMessage());
@@ -96,17 +75,7 @@ public class KoLExchangeWidget extends AppWidgetProvider {
         final String logTag = "onReceive";
 
         // Process a user click on the widget
-        if (intent != null && intent.getAction().equals(KOLEXCHANGE_CLICK_ACTION)) {
-
-            // Open the KoL Exchange rate website in browser
-            try {
-                Intent webIntent = new Intent(Intent.ACTION_VIEW)
-                        .setData(Uri.parse(KOLEXCHANGE_CLICK_URL));
-                webIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(webIntent);
-            } catch (RuntimeException e) {
-                Log.e(logTag, e.getMessage());
-            }
+        if (intent != null && intent.getAction().equals(Constants.KOLEXCHANGE_CLICK_ACTION)) {
 
             // Get the intent details
             int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
@@ -121,6 +90,12 @@ public class KoLExchangeWidget extends AppWidgetProvider {
                 Log.i(logTag, "Starting single widget update");
                 doWidgetUpdate(context, AppWidgetManager.getInstance(context), appWidgetId);
             }
+
+            // Open the main activity
+            Intent mainIntent = new Intent (context, MainActivity.class);
+            mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(mainIntent);
+
         }
 
     }
@@ -151,11 +126,11 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 
         // Set up the click intent
         Intent intent = new Intent(context, KoLExchangeWidget.class);
-        intent.setAction(KOLEXCHANGE_CLICK_ACTION);
+        intent.setAction(Constants.KOLEXCHANGE_CLICK_ACTION);
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 
         return PendingIntent.getBroadcast(context,
-                KOLEXCHANGE_CLICK_REQUEST,
+                Constants.KOLEXCHANGE_CLICK_REQUEST,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
@@ -171,7 +146,7 @@ public class KoLExchangeWidget extends AppWidgetProvider {
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
 
         return PendingIntent.getBroadcast(context,
-                KOLEXCHANGE_UPDATE_REQUEST,
+                Constants.KOLEXCHANGE_UPDATE_REQUEST,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
@@ -182,7 +157,7 @@ public class KoLExchangeWidget extends AppWidgetProvider {
         if (getActiveWidgetIds(context).length > 0) {
 
             // Set inexact alarm for next update
-            ZonedDateTime nextUpdate = ZonedDateTime.now().plus(KOLEXCHANGE_UPDATE_DURATION);
+            ZonedDateTime nextUpdate = ZonedDateTime.now().plus(Constants.KOLEXCHANGE_UPDATE_DURATION);
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             if (alarmManager != null) {
                 alarmManager.set(AlarmManager.RTC_WAKEUP,
@@ -206,7 +181,6 @@ public class KoLExchangeWidget extends AppWidgetProvider {
     // Asynchronously update the widget data and set click intent
     private void doWidgetUpdate(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
 
-        final String logTag = "doWidgetUpdate";
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
@@ -218,43 +192,14 @@ public class KoLExchangeWidget extends AppWidgetProvider {
             @Override
             public void run() {
 
-                // Load exchange rate from web service, with retries
-                XMLParser parser = new XMLParser();
-                int retries = KOLEXCHANGE_RETRIES;
-                while (updateText == null && retries > 0) {
-                    try {
-
-                        // Fetch XML data
-                        String xml = parser.getXmlFromUrl(KOLEXCHANGE_WS_URL, KOLEXCHANGE_TIMEOUT);
-                        if (xml != null) {
-                            Document doc = parser.getDomElement(xml);
-                            if (doc != null) {
-                                NodeList nl = doc.getElementsByTagName(KOLEXCHANGE_WS_NODE);
-                                if (nl.getLength() > 0) {
-                                    // New value for widget text
-                                    updateText = KOLEXCHANGE_LABEL +
-                                            parser.getElementValue(nl.item(0));
-                                }
-                            }
-                        }
-                        if (updateText == null) {
-                            // Pause before retrying
-                            TimeUnit.MILLISECONDS.sleep(KOLEXCHANGE_TIMEOUT);
-                        }
-
-                    } catch (Exception e) {
-                        Log.e(logTag, e.getMessage());
-                    }
-
-                    retries--;
-                }
-                Log.i(logTag, "Got " + updateText);
+                // Load exchange rate
+                updateText = KoLExchangeData.getExchangeRate();
 
                 // After loading data, apply updates to the widget
                 handler.post(() -> {
 
                     // Update the widget text only if a value was received
-                    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.main);
+                    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_main);
                     if (updateText != null) {
                         views.setTextViewText(R.id.widget_textview, updateText);
                     }
@@ -269,32 +214,6 @@ public class KoLExchangeWidget extends AppWidgetProvider {
                 });
             }
         });
-
-    }
-
-    // Return true if the device has an active network connection
-    private boolean isNetworkConnected(Context context) {
-
-        // Get network info
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager == null) {
-            return false;
-        }
-        Network network = connectivityManager.getActiveNetwork();
-        if (network == null) {
-            return false;
-        }
-        NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
-        if (capabilities == null) {
-            return false;
-        }
-
-        // Verify Wi-Fi or Cellular with internet access available
-        return (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
-                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
 
     }
 

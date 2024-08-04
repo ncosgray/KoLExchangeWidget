@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Base.AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="toolbarStyle">@style/ToolBarStyle</item>
+    </style>
+    <style name="ToolBarStyle" parent="@style/Widget.Material3.Toolbar">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="titleTextColor">@color/title_text_color</item>
+    </style>
+
+    <style name="AppTheme" parent="Base.AppTheme" />
+
+</resources>

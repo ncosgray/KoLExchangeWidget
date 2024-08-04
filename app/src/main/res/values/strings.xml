@@ -1,6 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">KoL Exchange Widget</string>
-    <string name="widget_text">Loading&#8230;</string>
+    <string name="app_name">KoL Exchange Rate</string>
+    <string name="loading_text">Loading&#8230;</string>
+    <string name="button_link_text">Visit the website for more</string>
+    <string name="textview_action_text">I\'m also a widget &#8212; tap the \"+\" button to add me to your home screen!</string>
 
 </resources>

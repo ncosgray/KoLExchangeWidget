@@ -37,7 +37,7 @@
             android:gravity="center_horizontal"
             android:paddingLeft="54dp"
             android:paddingRight="10dip"
-            android:text="@string/widget_text"
+            android:text="@string/loading_text"
             android:textSize="10sp"
             android:textColor="@color/text_color" />
 
