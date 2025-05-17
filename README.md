@@ -22,7 +22,7 @@ Open the app to see today's exchange rate and a graph of recent activity. Or, lo
 
 | Google Play Store | Android APK |
 | :--: | :--: |
-| <a href="https://play.google.com/store/apps/details?id=com.nathanatos.kolexchangewidget"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" width="206" height="80"/></a> | <a href="https://github.com/ncosgray/KoLExchangeWidget/releases/latest"><img src="https://www.nathanatos.com/software/images/file-zip-icon.png" alt="Download Android APK" width="80" height="80"/></a> |
+| <a href="https://play.google.com/store/apps/details?id=com.nathanatos.kolexchangewidget"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" width="206" height="80"/></a> | <a href="https://github.com/ncosgray/KoLExchangeWidget/releases/latest"><img src="https://www.nathanatos.com/images/file-zip-icon.png" alt="Download Android APK" width="80" height="80"/></a> |
 
 ### About
 
