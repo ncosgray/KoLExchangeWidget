@@ -61,12 +61,16 @@ public class MainActivity extends AppCompatActivity {
         executor.execute(() -> {
             try {
                 // Load exchange rate and graph image and apply to layout
-                String rateText = KoLExchangeData.getExchangeRate();
+                RateData rateData = KoLExchangeData.getExchangeRate();
                 Bitmap graphImage = KoLExchangeData.getExchangeGraph();
 
                 handler.post(() -> {
-                    binding.contentActivityTextviewRate.setText(rateText);
-                    binding.contentActivityImageviewGraph.setImageBitmap(graphImage);
+                    if (rateData != null) {
+                        binding.contentActivityTextviewRate.setText(rateData.getFormattedRate());
+                    }
+                    if (graphImage != null) {
+                        binding.contentActivityImageviewGraph.setImageBitmap(graphImage);
+                    }
                 });
             } catch (Exception e) {
                 Log.e(logTag, e.getMessage());
