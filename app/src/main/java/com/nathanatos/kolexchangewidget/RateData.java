@@ -78,12 +78,14 @@ public class RateData {
         return iotmIsFamiliar;
     }
 
+    public String getIotm() { return (iotmIsFamiliar ? "FOTM: " : "IOTM: ") + iotmName; }
+
     public String getGameDate() {
         return gameDate;
     }
 
     public String getNow() {
-        return now;
+        return now + Constants.KOLEXCHANGE_TIMEZONE;
     }
 
     @NonNull

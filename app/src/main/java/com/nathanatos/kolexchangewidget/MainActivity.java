@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
                 handler.post(() -> {
                     if (rateData != null) {
                         binding.contentActivityTextviewRate.setText(rateData.getFormattedRate());
+                        binding.contentActivityTextviewIotm.setText(rateData.getIotm());
+                        binding.contentActivityTextviewNow.setText(rateData.getNow());
                     }
                     if (graphImage != null) {
                         binding.contentActivityImageviewGraph.setImageBitmap(graphImage);

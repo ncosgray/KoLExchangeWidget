@@ -21,6 +21,7 @@ public class Constants {
     public static final String KOLEXCHANGE_WS_URL = "https://4hea44d1a5.execute-api.us-east-1.amazonaws.com/getrate";
     public static final String KOLEXCHANGE_LABEL = "$1 US = ";
     public static final String KOLEXCHANGE_UNIT = " Meat";
+    public static final String KOLEXCHANGE_TIMEZONE = " UTC";
     public static final String KOLEXCHANGE_GRAPH_URL = "https://kol-exchange-web.s3.amazonaws.com/rate_history_1mo.png";
     public static final int KOLEXCHANGE_TIMEOUT = 5000; // milliseconds
     public static final int KOLEXCHANGE_RETRIES = 3;
