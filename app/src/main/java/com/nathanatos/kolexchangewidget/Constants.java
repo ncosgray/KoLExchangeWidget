@@ -26,7 +26,7 @@ public class Constants {
     public static final int KOLEXCHANGE_RETRIES = 3;
 
     // Main activity
-    public static final String KOLEXCHANGE_CLICK_URL = "https://www.nathanatos.com/kol-exchange-rate/";
+    public static final String KOLEXCHANGE_CLICK_URL = "https://www.nathanatos.com/#kol";
 
     // Widget configuration
     public static final String KOLEXCHANGE_CLICK_ACTION = "KoLWidgetClicked";
