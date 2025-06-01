@@ -14,7 +14,7 @@ As the only direct financial link between The Kingdom of Loathing and a real-wor
 
 This neat-o app for your Android telephone doesn't do anything except show you the exchange rate! In case you always wanted to do that!
 
-Open the app to see today's exchange rate and a graph of recent activity. Or, long-press your home screen to add the KoL Exchange Rate widget, which will refresh daily with the current exchange rate. Tap the widget to get more information, including historical graphs, from the [KoL Exchange Rate website](https://www.nathanatos.com/kol-exchange-rate/).
+Open the app to see today's exchange rate and a graph of recent activity. Or, long-press your home screen to add the KoL Exchange Rate widget, which will refresh daily with the current exchange rate. Tons more information, including historical graphs, can be found on the [KoL Exchange Rate website](https://www.nathanatos.com/#kol).
 
 *Please note: This is not a game. Heck, it's barely even an app. And most importantly, we are not affiliated with The Kingdom of Loathing or Asymmetric Publications!*
 
