@@ -124,8 +124,8 @@
                 android:layout_gravity="start"
                 android:text="@string/button_link_text"
                 android:layout_marginHorizontal="20dip"
-                app:icon="@android:drawable/ic_media_play"
-                app:iconSize="12dp"
+                app:icon="@drawable/ic_arrow_right"
+                app:iconSize="18dp"
                 app:iconGravity="end" />
 
             <TextView
