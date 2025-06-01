@@ -43,16 +43,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final String logTag = "onCreate";
-
         // Set up binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
         // Add click listeners to UI elements
+        binding.contentActivityTextviewRate.setOnClickListener(getRefreshListener());
         binding.contentActivityButtonLink.setOnClickListener(getWebClickListener());
         binding.fabActivityAction.setOnClickListener(getPinClickListener());
+
+        doRefresh();
+
+    }
+
+    // Refresh data
+    private void doRefresh() {
+
+        final String logTag = "doRefresh";
 
         // Download the exchange rate data
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -78,6 +86,18 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(logTag, e.getMessage());
             }
         });
+
+    }
+
+    // Create a listener for refreshing data
+    private View.OnClickListener getRefreshListener() {
+
+        return view -> {
+            // Clear rate text while refreshing
+            binding.contentActivityTextviewRate.setText(getString(R.string.loading_text));
+
+            doRefresh();
+        };
     }
 
     // Create a listener for widget pinning action
