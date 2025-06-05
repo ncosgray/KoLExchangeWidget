@@ -4,7 +4,7 @@
  Class:    KoLExchangeWidget.java
  Author:   Nathan Cosgray | https://www.nathanatos.com
  -------------------------------------------------------------------------------
- Copyright (c) 2013-2024 Nathan Cosgray. All rights reserved.
+ Copyright (c) 2013-2025 Nathan Cosgray. All rights reserved.
  This source code is licensed under the BSD-style license found in LICENSE.txt.
  *******************************************************************************
 */
@@ -186,22 +186,22 @@ public class KoLExchangeWidget extends AppWidgetProvider {
 
         executor.execute(new Runnable() {
 
-            String updateText = null;
+            RateData rateData = null;
 
             // Load data from web service
             @Override
             public void run() {
 
                 // Load exchange rate
-                updateText = KoLExchangeData.getExchangeRate();
+                rateData = KoLExchangeData.getExchangeRate();
 
                 // After loading data, apply updates to the widget
                 handler.post(() -> {
 
                     // Update the widget text only if a value was received
                     RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_main);
-                    if (updateText != null) {
-                        views.setTextViewText(R.id.widget_textview, updateText);
+                    if (rateData != null) {
+                        views.setTextViewText(R.id.widget_textview, rateData.getFormattedRate());
                     }
 
                     // Set up the click intent

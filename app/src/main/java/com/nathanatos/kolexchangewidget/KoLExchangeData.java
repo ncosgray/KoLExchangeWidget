@@ -4,7 +4,7 @@
  Class:    KoLExchangeData.java
  Author:   Nathan Cosgray | https://www.nathanatos.com
  -------------------------------------------------------------------------------
- Copyright (c) 2013-2024 Nathan Cosgray. All rights reserved.
+ Copyright (c) 2013-2025 Nathan Cosgray. All rights reserved.
  This source code is licensed under the BSD-style license found in LICENSE.txt.
  *******************************************************************************
 */
@@ -22,9 +22,6 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.util.Log;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-
 import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
@@ -32,31 +29,23 @@ import java.util.concurrent.TimeUnit;
 public class KoLExchangeData {
 
     // Load exchange rate from web service, with retries
-    public static String getExchangeRate() {
+    public static RateData getExchangeRate() {
 
         final String logTag = "getExchangeRate";
-        String updateText = null;
+        RateData rateData = null;
 
         // Load exchange rate from web service, with retries
-        XMLParser parser = new XMLParser();
+        JsonParser parser = new JsonParser();
         int retries = Constants.KOLEXCHANGE_RETRIES;
-        while (updateText == null && retries > 0) {
+        while (rateData == null && retries > 0) {
             try {
 
-                // Fetch XML data
-                String xml = parser.getXmlFromUrl(Constants.KOLEXCHANGE_WS_URL, Constants.KOLEXCHANGE_TIMEOUT);
-                if (xml != null) {
-                    Document doc = parser.getDomElement(xml);
-                    if (doc != null) {
-                        NodeList nl = doc.getElementsByTagName(Constants.KOLEXCHANGE_WS_NODE);
-                        if (nl.getLength() > 0) {
-                            // New value for widget text
-                            updateText = Constants.KOLEXCHANGE_LABEL +
-                                    parser.getElementValue(nl.item(0));
-                        }
-                    }
+                // Fetch API data
+                String json = parser.getApiData(Constants.KOLEXCHANGE_WS_URL, Constants.KOLEXCHANGE_TIMEOUT);
+                if (json != null) {
+                    rateData = JsonParser.parseApiData(json);
                 }
-                if (updateText == null) {
+                if (rateData == null) {
                     // Pause before retrying
                     TimeUnit.MILLISECONDS.sleep(Constants.KOLEXCHANGE_TIMEOUT);
                 }
@@ -67,9 +56,9 @@ public class KoLExchangeData {
 
             retries--;
         }
-        Log.i(logTag, "Got " + updateText);
+        Log.i(logTag, "Got " + rateData);
 
-        return updateText;
+        return rateData;
     }
 
     // Download the exchange rate graph image, with retries

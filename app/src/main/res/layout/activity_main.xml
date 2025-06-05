@@ -33,11 +33,12 @@
             android:gravity="start"
             android:orientation="vertical">
 
-            <FrameLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:layout_gravity="center"
+                android:orientation="horizontal"
                 android:paddingTop="20dip">
 
                 <ImageView
@@ -51,20 +52,61 @@
                     android:padding="0dip"
                     android:src="@drawable/widget_image" />
 
-                <TextView
-                    android:id="@+id/content_activity_textview_rate"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center|end"
-                    android:gravity="center|end"
-                    android:layout_marginStart="10dip"
-                    android:layout_marginEnd="20dip"
-                    android:text="@string/loading_text"
-                    android:textColor="@color/text_color"
-                    android:textStyle="bold"
-                    android:textSize="20sp" />
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:orientation="vertical">
 
-            </FrameLayout>
+                    <TextView
+                        android:id="@+id/content_activity_textview_rate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center|end"
+                        android:gravity="center|end"
+                        android:layout_marginStart="10dip"
+                        android:layout_marginEnd="20dip"
+                        android:text="@string/loading_text"
+                        android:textColor="@color/text_color"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:drawableEnd="@android:color/transparent"
+                        android:drawableTint="?attr/colorPrimary"
+                        android:drawablePadding="8dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                    <TextView
+                        android:id="@+id/content_activity_textview_iotm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center|end"
+                        android:gravity="center|end"
+                        android:layout_marginStart="10dip"
+                        android:layout_marginEnd="20dip"
+                        android:layout_marginTop="4dp"
+                        android:text=""
+                        android:textColor="@color/text_color"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/content_activity_textview_now"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center|end"
+                        android:gravity="center|end"
+                        android:layout_marginStart="10dip"
+                        android:layout_marginEnd="20dip"
+                        android:layout_marginTop="4dp"
+                        android:text=""
+                        android:textColor="@color/sub_text_color"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/content_activity_imageview_graph"
@@ -82,8 +124,8 @@
                 android:layout_gravity="start"
                 android:text="@string/button_link_text"
                 android:layout_marginHorizontal="20dip"
-                app:icon="@android:drawable/ic_media_play"
-                app:iconSize="12dp"
+                app:icon="@drawable/ic_arrow_right"
+                app:iconSize="18dp"
                 app:iconGravity="end" />
 
             <TextView

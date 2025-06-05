@@ -10,5 +10,6 @@
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme" />
+    <style name="SplashTheme" parent="Base.AppTheme" />
 
 </resources>

@@ -4,7 +4,7 @@
  Class:    MainActivity.java
  Author:   Nathan Cosgray | https://www.nathanatos.com
  -------------------------------------------------------------------------------
- Copyright (c) 2013-2024 Nathan Cosgray. All rights reserved.
+ Copyright (c) 2013-2025 Nathan Cosgray. All rights reserved.
  This source code is licensed under the BSD-style license found in LICENSE.txt.
  *******************************************************************************
 */
@@ -43,16 +43,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final String logTag = "onCreate";
-
         // Set up binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
         // Add click listeners to UI elements
+        binding.contentActivityTextviewRate.setOnClickListener(getRefreshListener());
         binding.contentActivityButtonLink.setOnClickListener(getWebClickListener());
         binding.fabActivityAction.setOnClickListener(getPinClickListener());
+
+        doRefresh();
+
+    }
+
+    // Refresh data
+    private void doRefresh() {
+
+        final String logTag = "doRefresh";
+
+        // Clear rate while refreshing
+        binding.contentActivityTextviewRate.setText(getString(R.string.loading_text));
+        binding.contentActivityTextviewRate.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0);
 
         // Download the exchange rate data
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -61,17 +73,32 @@ public class MainActivity extends AppCompatActivity {
         executor.execute(() -> {
             try {
                 // Load exchange rate and graph image and apply to layout
-                String rateText = KoLExchangeData.getExchangeRate();
+                RateData rateData = KoLExchangeData.getExchangeRate();
                 Bitmap graphImage = KoLExchangeData.getExchangeGraph();
 
                 handler.post(() -> {
-                    binding.contentActivityTextviewRate.setText(rateText);
-                    binding.contentActivityImageviewGraph.setImageBitmap(graphImage);
+                    if (rateData != null) {
+                        binding.contentActivityTextviewRate.setText(rateData.getFormattedRate());
+                        binding.contentActivityTextviewIotm.setText(rateData.getIotm());
+                        binding.contentActivityTextviewNow.setText(rateData.getNow());
+                        binding.contentActivityTextviewRate.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_refresh, 0);
+                    }
+                    if (graphImage != null) {
+                        binding.contentActivityImageviewGraph.setImageBitmap(graphImage);
+                    }
                 });
             } catch (Exception e) {
                 Log.e(logTag, e.getMessage());
             }
         });
+
+    }
+
+    // Create a listener for refreshing data
+    private View.OnClickListener getRefreshListener() {
+
+        return view -> doRefresh();
+
     }
 
     // Create a listener for widget pinning action
