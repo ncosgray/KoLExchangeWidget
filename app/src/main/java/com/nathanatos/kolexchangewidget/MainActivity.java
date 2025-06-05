@@ -62,6 +62,10 @@ public class MainActivity extends AppCompatActivity {
 
         final String logTag = "doRefresh";
 
+        // Clear rate while refreshing
+        binding.contentActivityTextviewRate.setText(getString(R.string.loading_text));
+        binding.contentActivityTextviewRate.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0);
+
         // Download the exchange rate data
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
@@ -77,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
                         binding.contentActivityTextviewRate.setText(rateData.getFormattedRate());
                         binding.contentActivityTextviewIotm.setText(rateData.getIotm());
                         binding.contentActivityTextviewNow.setText(rateData.getNow());
+                        binding.contentActivityTextviewRate.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_refresh, 0);
                     }
                     if (graphImage != null) {
                         binding.contentActivityImageviewGraph.setImageBitmap(graphImage);
@@ -92,12 +97,8 @@ public class MainActivity extends AppCompatActivity {
     // Create a listener for refreshing data
     private View.OnClickListener getRefreshListener() {
 
-        return view -> {
-            // Clear rate text while refreshing
-            binding.contentActivityTextviewRate.setText(getString(R.string.loading_text));
+        return view -> doRefresh();
 
-            doRefresh();
-        };
     }
 
     // Create a listener for widget pinning action
